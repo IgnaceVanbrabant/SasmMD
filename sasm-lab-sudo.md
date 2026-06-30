@@ -65,3 +65,48 @@ sudo visudo -c
 ```
 
 Both commands reported the sudoers configuration parsed successfully.
+
+### Step 4: Validate sudo behavior as `check`
+
+Checked the effective sudo permissions:
+
+```bash
+sudo -u check sudo -n -l
+```
+
+Result:
+
+```text
+User check may run the following commands on cursor:
+    (root) NOPASSWD: /usr/lib/nagios/plugins/check_apt, /usr/sbin/arp
+```
+
+Allowed command tests:
+
+```bash
+sudo -u check sudo -n /usr/lib/nagios/plugins/check_apt
+sudo -u check sudo -n /usr/sbin/arp
+sudo -u check sudo -n /usr/sbin/arp -n
+```
+
+Results:
+
+- `check_apt` executed without a password and reported pending package updates.
+  It returned Nagios status `2` because updates are available, not because sudo
+  failed.
+- `/usr/sbin/arp` executed without a password.
+- `/usr/sbin/arp -n` executed without a password.
+
+Denied command test:
+
+```bash
+sudo -u check sudo -n ip neighbor show
+```
+
+Result:
+
+```text
+sudo: a password is required
+```
+
+This confirms `check` does not have passwordless sudo for unrelated commands.
