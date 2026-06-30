@@ -128,9 +128,15 @@ sudo git add sasm/static-arp-gateway
 sudo git commit -m "Add static ARP script for gateway"
 ```
 
-## 4. Run the script after boot and when `eth0` changes
+## 4. Run the script at boot
 
-Create a systemd service:
+Remove the old udev rule if it exists:
+
+```bash
+sudo rm -f /etc/udev/rules.d/90-sasm-static-arp-gateway.rules
+```
+
+Create the systemd service:
 
 ```bash
 sudo nano /etc/systemd/system/sasm-static-arp-gateway.service
@@ -141,6 +147,8 @@ Put this in the file:
 ```ini
 [Unit]
 Description=Set static ARP entry for default gateway
+BindsTo=sys-subsystem-net-devices-eth0.device
+After=sys-subsystem-net-devices-eth0.device
 
 [Service]
 Type=oneshot
@@ -164,31 +172,6 @@ sudo systemctl enable sasm-static-arp-gateway.service
 sudo systemctl start sasm-static-arp-gateway.service
 ```
 
-Create a udev rule so it also runs when `eth0` comes back:
-
-```bash
-sudo nano /etc/udev/rules.d/90-sasm-static-arp-gateway.rules
-```
-
-Put this in the file:
-
-```udev
-SUBSYSTEM=="net", ACTION=="add|change", KERNEL=="eth0", TAG+="systemd", ENV{SYSTEMD_WANTS}+="sasm-static-arp-gateway.service"
-```
-
-Save:
-
-```text
-CTRL+O, Enter, CTRL+X
-```
-
-Reload udev:
-
-```bash
-sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=net --action=change
-```
-
 Check again:
 
 ```bash
@@ -201,8 +184,56 @@ Commit it:
 
 ```bash
 sudo git add systemd/system/sasm-static-arp-gateway.service
-sudo git add udev/rules.d/90-sasm-static-arp-gateway.rules
-sudo git commit -m "Apply static ARP entry when eth0 is online"
+sudo git rm -f udev/rules.d/90-sasm-static-arp-gateway.rules 2>/dev/null || true
+sudo git commit -m "Apply static ARP entry at boot"
+```
+
+Important: `BindsTo=` with the `.device` unit is not enough to rerun the script
+when carrier comes back after `ip link set dev eth0 down/up`. The `.device` unit
+tracks whether the `eth0` device exists, not every carrier change. In an LXC
+container with `systemd-networkd`, use `networkd-dispatcher` for the interface-up
+trigger. A socket unit is not useful here.
+
+Install it if needed and create the script directory:
+
+```bash
+sudo apt update
+sudo apt install -y networkd-dispatcher
+sudo mkdir -p /etc/networkd-dispatcher/routable.d
+```
+
+Create a dispatcher script:
+
+```bash
+sudo nano /etc/networkd-dispatcher/routable.d/50-static-arp-gateway
+```
+
+Put this in the file:
+
+```sh
+#!/bin/sh
+[ "$IFACE" = "eth0" ] || exit 0
+/etc/sasm/static-arp-gateway
+```
+
+Save:
+
+```text
+CTRL+O, Enter, CTRL+X
+```
+
+Enable it:
+
+```bash
+sudo chmod 755 /etc/networkd-dispatcher/routable.d/50-static-arp-gateway
+sudo systemctl enable --now networkd-dispatcher.service
+```
+
+Commit it:
+
+```bash
+sudo git add networkd-dispatcher/routable.d/50-static-arp-gateway
+sudo git commit -m "Reapply static ARP when networkd marks eth0 routable"
 ```
 
 ## 5. Allow `check` to run only the required commands
