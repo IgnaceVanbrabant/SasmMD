@@ -43,3 +43,25 @@ Result:
 - `monitoring-plugins-basic` was installed successfully.
 - `/usr/lib/nagios/plugins/check_apt` exists and is executable.
 - `/usr/sbin/arp` exists and is executable.
+
+### Step 3: Configure sudo for the `check` user
+
+The `check` user did not exist on this machine, so it was created without sudo
+group membership.
+
+Created `/etc/sudoers.d/sasm-lab-check` with this rule:
+
+```sudoers
+check ALL=(root) NOPASSWD: /usr/lib/nagios/plugins/check_apt, /usr/sbin/arp
+```
+
+The file was set to mode `0440`.
+
+Validation:
+
+```bash
+sudo visudo -cf /etc/sudoers.d/sasm-lab-check
+sudo visudo -c
+```
+
+Both commands reported the sudoers configuration parsed successfully.
