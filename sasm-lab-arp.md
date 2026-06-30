@@ -147,8 +147,8 @@ Put this in the file:
 ```ini
 [Unit]
 Description=Set static ARP entry for default gateway
-BindsTo=sys-subsystem-net-devices-eth0.device
-After=sys-subsystem-net-devices-eth0.device
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=oneshot
@@ -168,6 +168,7 @@ Enable it:
 
 ```bash
 sudo systemctl daemon-reload
+sudo systemctl reset-failed sasm-static-arp-gateway.service
 sudo systemctl enable sasm-static-arp-gateway.service
 sudo systemctl start sasm-static-arp-gateway.service
 ```
@@ -188,10 +189,10 @@ sudo git rm -f udev/rules.d/90-sasm-static-arp-gateway.rules 2>/dev/null || true
 sudo git commit -m "Apply static ARP entry at boot"
 ```
 
-Important: `BindsTo=` with the `.device` unit is not enough to rerun the script
-when carrier comes back after `ip link set dev eth0 down/up`. The `.device` unit
-tracks whether the `eth0` device exists, not every carrier change. In an LXC
-container with `systemd-networkd`, use `networkd-dispatcher` for the interface-up
+Important: do not use `BindsTo=sys-subsystem-net-devices-eth0.device` in this
+LXC setup. If that `.device` unit is not active, the service fails with a
+dependency error before the script runs. It also does not rerun the script for
+every carrier down/up event. Use `networkd-dispatcher` for the interface-up
 trigger. A socket unit is not useful here.
 
 Install it if needed and create the script directory:
