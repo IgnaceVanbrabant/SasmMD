@@ -237,6 +237,9 @@ LC_MEASUREMENT=nl_BE.UTF-8
 LC_IDENTIFICATION=nl_BE.UTF-8
 ```
 
+You do not need to add `LC_CTYPE`, `LC_COLLATE`, or `LC_MESSAGES` here. They
+will use `LANG=en_US.UTF-8`, which matches the assignment output.
+
 Do not add `LC_ALL`. The assignment example shows `LC_ALL=` empty, so leaving it
 unset is correct.
 
