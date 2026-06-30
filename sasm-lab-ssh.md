@@ -264,12 +264,12 @@ git commit -m "Create check user for SSH lab"
 Create a lab-specific SSH config file:
 
 ```bash
-sudo tee /etc/ssh/sshd_config.d/10-sasm-lab.conf >/dev/null <<'EOF'
+sudo nano /etc/ssh/sshd_config.d/10-sasm-lab.conf
+add this text:
 Port 22345
 UseDNS no
 PubkeyAuthentication yes
 PasswordAuthentication yes
-EOF
 ```
 
 Notes:
