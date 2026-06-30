@@ -49,13 +49,22 @@ Result:
 The `check` user did not exist on this machine, so it was created without sudo
 group membership.
 
-Created `/etc/sudoers.d/sasm-lab-check` with this rule:
+Do not type the sudoers rule directly at the shell prompt. This is not a shell
+command:
 
 ```sudoers
 check ALL=(root) NOPASSWD: /usr/lib/nagios/plugins/check_apt, /usr/sbin/arp
 ```
 
-The file was set to mode `0440`.
+Put that rule in `/etc/sudoers.d/sasm-lab-check` with:
+
+```bash
+printf '%s\n' 'check ALL=(root) NOPASSWD: /usr/lib/nagios/plugins/check_apt, /usr/sbin/arp' | sudo tee /etc/sudoers.d/sasm-lab-check >/dev/null
+sudo chmod 0440 /etc/sudoers.d/sasm-lab-check
+```
+
+The `printf ... | sudo tee ...` command creates or replaces the sudoers drop-in
+file. The file must be set to mode `0440`.
 
 Validation:
 
