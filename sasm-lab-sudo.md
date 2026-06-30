@@ -26,3 +26,20 @@ No other commands should be granted to `check` through sudo for this lab.
 - Created branch `cursor/sudo-lab-6b86`.
 - Confirmed the repository was on `main` before branching.
 - Confirmed `sudo` and `apt-get` commands are available on the machine.
+
+### Step 2: Install required packages
+
+Ran:
+
+```bash
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y sudo monitoring-plugins-basic net-tools
+```
+
+Result:
+
+- `sudo` was already installed.
+- `net-tools` was already installed.
+- `monitoring-plugins-basic` was installed successfully.
+- `/usr/lib/nagios/plugins/check_apt` exists and is executable.
+- `/usr/sbin/arp` exists and is executable.
