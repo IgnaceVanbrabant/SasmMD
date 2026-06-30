@@ -8,8 +8,8 @@ able to:
 - Explain why NTP is used.
 - Set the correct timezone.
 - Synchronize your server with `be.pool.ntp.org`.
-- Allow NTP time queries only from `yoda.uclllabs.be` and one other allowed
-  server of your choice.
+- Allow NTP time queries only from `yoda.uclllabs.be` and
+  `matteo.knops.sasm.uclllabs.be`.
 - Block all other IPv4 and IPv6 clients from querying your NTP server.
 - Verify synchronization and access control.
 - Keep a clear git revision trail with useful commit messages.
@@ -67,12 +67,17 @@ Replace these placeholders before editing the config:
 
 - `YODA_IPV4`
 - `YODA_IPV6`
-- `OTHER_IPV4`
-- `OTHER_IPV6`
+- `MATTEO_IPV4`
+- `MATTEO_IPV6`
 
-The second allowed server can be any specific server except
-`leia.uclllabs.be`. Choose one server name, resolve its IPv4 and IPv6 addresses,
-and use those IP addresses in the config.
+The second allowed server for this guide is:
+
+```text
+matteo.knops.sasm.uclllabs.be
+```
+
+Resolve its IPv4 and IPv6 addresses on your lab machine and use those IP
+addresses in the config.
 
 ## Step 1: Go to `/etc` and check git status
 
@@ -249,12 +254,12 @@ Expected style of output:
 2a02:xxxx:xxxx::xxxx STREAM yoda.uclllabs.be
 ```
 
-Now choose one other specific server. Do **not** choose `leia.uclllabs.be`.
-Example placeholder:
+Now resolve the second allowed server,
+`matteo.knops.sasm.uclllabs.be`:
 
 ```bash
-getent ahosts chosen-server.example
-getent ahostsv6 chosen-server.example
+getent ahosts matteo.knops.sasm.uclllabs.be
+getent ahostsv6 matteo.knops.sasm.uclllabs.be
 ```
 
 Write down one IPv4 address and one IPv6 address for each allowed server:
@@ -262,12 +267,13 @@ Write down one IPv4 address and one IPv6 address for each allowed server:
 ```text
 YODA_IPV4=...
 YODA_IPV6=...
-OTHER_IPV4=...
-OTHER_IPV6=...
+MATTEO_IPV4=...
+MATTEO_IPV6=...
 ```
 
-If your chosen second server has no IPv6 address, choose a different server. The
-lab requires the access-control test to work for IPv4 and IPv6.
+If the `matteo` hostname does not resolve, check that you typed it correctly and
+that you are using the lab DNS/network. Do not replace it with
+`leia.uclllabs.be`, because the assignment explicitly excludes Leia.
 
 Update your progress file:
 
@@ -278,7 +284,7 @@ nano ntp-lab-progress.md
 Add the IP addresses you found, for example:
 
 ```markdown
-Resolved yoda.uclllabs.be and my second allowed server to IPv4 and IPv6
+Resolved yoda.uclllabs.be and matteo.knops.sasm.uclllabs.be to IPv4 and IPv6
 addresses for the NTP restrict rules.
 ```
 
@@ -321,8 +327,8 @@ restrict source nomodify notrap noquery
 # Allow only the approved clients to get time from this server.
 restrict YODA_IPV4 nomodify notrap nopeer noquery
 restrict -6 YODA_IPV6 nomodify notrap nopeer noquery
-restrict OTHER_IPV4 nomodify notrap nopeer noquery
-restrict -6 OTHER_IPV6 nomodify notrap nopeer noquery
+restrict MATTEO_IPV4 nomodify notrap nopeer noquery
+restrict -6 MATTEO_IPV6 nomodify notrap nopeer noquery
 
 # Workaround for strict external checks that may trigger rate limiting.
 discard minimum 1
@@ -345,7 +351,7 @@ What these lines mean:
 Important:
 
 - Do not write `restrict yoda.uclllabs.be ...`.
-- Do not write the hostname of your second server.
+- Do not write `restrict matteo.knops.sasm.uclllabs.be ...`.
 - The `pool be.pool.ntp.org iburst` line may use a hostname because it is an
   upstream server line, not an access-control `restrict` line.
 - Do not leave an old permissive `restrict default ...` rule in the file.
@@ -459,7 +465,7 @@ git commit -m "Verify NTP synchronization"
 You cannot fully test this from only the NTP server itself. Test from other
 machines.
 
-From `yoda.uclllabs.be` or your second allowed server, run:
+From `yoda.uclllabs.be` or `matteo.knops.sasm.uclllabs.be`, run:
 
 ```bash
 ntpdate -q your-ntp-server-name-or-ip
@@ -512,8 +518,8 @@ Add which machines worked and which machines were blocked:
 Verified NTP access control:
 - yoda IPv4: allowed
 - yoda IPv6: allowed
-- second allowed server IPv4: allowed
-- second allowed server IPv6: allowed
+- matteo IPv4: allowed
+- matteo IPv6: allowed
 - unrelated client IPv4: blocked
 - unrelated client IPv6: blocked
 ```
@@ -592,8 +598,8 @@ Common mistakes:
 - Using a hostname in a `restrict` line.
 - Adding the wrong IP address.
 - Forgetting the IPv6 `restrict -6 ...` line.
-- Choosing `leia.uclllabs.be` as the second server, which the assignment does
-  not allow.
+- Accidentally using `leia.uclllabs.be` instead of
+  `matteo.knops.sasm.uclllabs.be`.
 
 After fixing the file:
 
@@ -628,8 +634,8 @@ sudo systemctl restart ntp
 - [ ] `restrict source nomodify notrap noquery` is present.
 - [ ] `yoda.uclllabs.be` IPv4 address is allowed.
 - [ ] `yoda.uclllabs.be` IPv6 address is allowed.
-- [ ] One other non-`leia` server IPv4 address is allowed.
-- [ ] One other non-`leia` server IPv6 address is allowed.
+- [ ] `matteo.knops.sasm.uclllabs.be` IPv4 address is allowed.
+- [ ] `matteo.knops.sasm.uclllabs.be` IPv6 address is allowed.
 - [ ] No hostnames are used in `restrict` lines.
 - [ ] `ntpstat` shows synchronized.
 - [ ] `ntpq -pn` shows a selected peer with `*`.
@@ -642,7 +648,7 @@ sudo systemctl restart ntp
 This lab teaches you how to run a secure NTP server. Your server synchronizes
 its own clock with `be.pool.ntp.org`, then provides time only to approved
 clients. The key security part is the access control: all IPv4 and IPv6 clients
-are ignored by default, and only the IP addresses of `yoda.uclllabs.be` plus one
-other allowed server are permitted. You also verify the setup with `date`,
-`ntpstat`, `ntpq -pn`, and `ntpdate -q`, while documenting every important
-change in git.
+are ignored by default, and only the IP addresses of `yoda.uclllabs.be` and
+`matteo.knops.sasm.uclllabs.be` are permitted. You also verify the setup with
+`date`, `ntpstat`, `ntpq -pn`, and `ntpdate -q`, while documenting every
+important change in git.
