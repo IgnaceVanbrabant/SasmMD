@@ -189,12 +189,6 @@ sudo git rm -f udev/rules.d/90-sasm-static-arp-gateway.rules 2>/dev/null || true
 sudo git commit -m "Apply static ARP entry at boot"
 ```
 
-Important: do not use `BindsTo=sys-subsystem-net-devices-eth0.device` in this
-LXC setup. If that `.device` unit is not active, the service fails with a
-dependency error before the script runs. It also does not rerun the script for
-every carrier down/up event. Use `networkd-dispatcher` for the interface-up
-trigger. A socket unit is not useful here.
-
 Install it if needed and create the script directory:
 
 ```bash
@@ -227,6 +221,7 @@ Enable it:
 
 ```bash
 sudo chmod 755 /etc/networkd-dispatcher/routable.d/50-static-arp-gateway
+sudo test -x /etc/networkd-dispatcher/routable.d/50-static-arp-gateway
 sudo systemctl enable --now networkd-dispatcher.service
 ```
 
