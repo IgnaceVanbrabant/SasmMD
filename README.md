@@ -12,4 +12,5 @@ MD files for SaSM labs.
 - [NTP lab guide](sasm-lab-ntp.md)
 - [SSH lab guide](sasm-lab-ssh.md)
 - [Sudo lab guide](sasm-lab-sudo.md)
+- [Apache virtual hosts lab guide](sasm-lab-vhost.md)
 - [Possible exam questions](sasm-exam-possible-questions.md)
