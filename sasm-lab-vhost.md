@@ -21,6 +21,9 @@ By the end, you should be able to:
 > Important: this guide uses Apache on Ubuntu/Debian. Replace
 > `www3.example.com` with the real hostname you want to configure, and replace
 > `YOUR_SERVER_IP` with your server's IPv4 address.
+>
+> If you need to change a vhost that already exists, use
+> [Change an Existing Apache Virtual Host](sasm-lab-vhost-change.md).
 
 ## 1. What is a virtual host?
 

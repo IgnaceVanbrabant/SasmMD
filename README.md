@@ -13,4 +13,5 @@ MD files for SaSM labs.
 - [SSH lab guide](sasm-lab-ssh.md)
 - [Sudo lab guide](sasm-lab-sudo.md)
 - [Apache virtual hosts lab guide](sasm-lab-vhost.md)
+- [Change an existing Apache virtual host lab guide](sasm-lab-vhost-change.md)
 - [Possible exam questions](sasm-exam-possible-questions.md)
