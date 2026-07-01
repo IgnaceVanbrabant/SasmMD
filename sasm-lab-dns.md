@@ -5,7 +5,7 @@
 In this lab you configure an authoritative DNS server with BIND9 for:
 
 ```text
-slimme-rik.sasm.uclllabs.be
+ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 By the end, you should be able to:
@@ -13,7 +13,7 @@ By the end, you should be able to:
 - Explain how DNS lookups work from resolver to authoritative nameserver.
 - Explain why the Dan Kaminsky DNS vulnerability was dangerous.
 - Install and configure BIND9 as an authoritative-only DNS server.
-- Serve the required records for `slimme-rik.sasm.uclllabs.be`.
+- Serve the required records for `ignace-vanbrabant.sasm.uclllabs.be`.
 - Verify the master and slave nameservers with `dig`.
 - Automate temporary subzone and record creation with scripts.
 - Automatically clean up scripted zones older than 4 hours.
@@ -66,9 +66,9 @@ When a client wants to resolve a name, several DNS roles can be involved.
 4. **Authoritative nameserver**
    - Holds the actual DNS records for a zone.
    - For this lab, your server is authoritative for
-     `slimme-rik.sasm.uclllabs.be`.
+     `ignace-vanbrabant.sasm.uclllabs.be`.
 
-The simplified lookup for `test.slimme-rik.sasm.uclllabs.be` is:
+The simplified lookup for `test.ignace-vanbrabant.sasm.uclllabs.be` is:
 
 ```text
 client
@@ -76,7 +76,7 @@ client
   -> root nameserver
   -> .be TLD nameserver
   -> uclllabs.be nameserver
-  -> authoritative nameserver for slimme-rik.sasm.uclllabs.be
+  -> authoritative nameserver for ignace-vanbrabant.sasm.uclllabs.be
   -> answer: 193.191.177.254
 ```
 
@@ -114,13 +114,13 @@ that lives inside the delegated zone.
 Example:
 
 ```text
-slimme-rik.sasm.uclllabs.be. IN NS ns.slimme-rik.sasm.uclllabs.be.
-ns.slimme-rik.sasm.uclllabs.be. IN A YOUR_SERVER_IP
+ignace-vanbrabant.sasm.uclllabs.be. IN NS ns.ignace-vanbrabant.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be. IN A YOUR_SERVER_IP
 ```
 
 Without glue, a resolver might need to resolve
-`ns.slimme-rik.sasm.uclllabs.be` before it can contact the nameserver for
-`slimme-rik.sasm.uclllabs.be`, which creates a circular dependency. The parent
+`ns.ignace-vanbrabant.sasm.uclllabs.be` before it can contact the nameserver for
+`ignace-vanbrabant.sasm.uclllabs.be`, which creates a circular dependency. The parent
 zone solves this by also publishing the IP address of the in-zone nameserver.
 
 ## 2. The Dan Kaminsky DNS vulnerability
@@ -218,13 +218,13 @@ Your final authoritative setup must provide:
 
 | Name | Record | Value |
 | --- | --- | --- |
-| `slimme-rik.sasm.uclllabs.be` | `SOA` | primary server `ns.slimme-rik.sasm.uclllabs.be` |
-| `slimme-rik.sasm.uclllabs.be` | `NS` | `ns.slimme-rik.sasm.uclllabs.be` |
-| `slimme-rik.sasm.uclllabs.be` | `NS` | `ns1.uclllabs.be` |
-| `slimme-rik.sasm.uclllabs.be` | `NS` | `ns2.uclllabs.be` |
-| `ns.slimme-rik.sasm.uclllabs.be` | `A` | `YOUR_SERVER_IP` |
-| `www.slimme-rik.sasm.uclllabs.be` | `A` | `YOUR_SERVER_IP` |
-| `test.slimme-rik.sasm.uclllabs.be` | `A` | `193.191.177.254` |
+| `ignace-vanbrabant.sasm.uclllabs.be` | `SOA` | primary server `ns.ignace-vanbrabant.sasm.uclllabs.be` |
+| `ignace-vanbrabant.sasm.uclllabs.be` | `NS` | `ns.ignace-vanbrabant.sasm.uclllabs.be` |
+| `ignace-vanbrabant.sasm.uclllabs.be` | `NS` | `ns1.uclllabs.be` |
+| `ignace-vanbrabant.sasm.uclllabs.be` | `NS` | `ns2.uclllabs.be` |
+| `ns.ignace-vanbrabant.sasm.uclllabs.be` | `A` | `YOUR_SERVER_IP` |
+| `www.ignace-vanbrabant.sasm.uclllabs.be` | `A` | `YOUR_SERVER_IP` |
+| `test.ignace-vanbrabant.sasm.uclllabs.be` | `A` | `193.191.177.254` |
 
 Later, only after the first part works, you can add:
 
@@ -386,9 +386,9 @@ sudo nano /etc/bind/named.conf.local
 Add:
 
 ```text
-zone "slimme-rik.sasm.uclllabs.be" {
+zone "ignace-vanbrabant.sasm.uclllabs.be" {
     type master;
-    file "/var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be";
+    file "/var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be";
     allow-transfer {
         127.0.0.1;
         ::1;
@@ -407,7 +407,7 @@ zone "slimme-rik.sasm.uclllabs.be" {
 
 What this configuration means:
 
-- `zone "slimme-rik.sasm.uclllabs.be"` declares your DNS zone.
+- `zone "ignace-vanbrabant.sasm.uclllabs.be"` declares your DNS zone.
 - `type master;` makes this server the primary source for the zone.
 - `file` points to the zone database file.
 - `allow-transfer` allows only localhost and the UCLL slave nameservers to copy
@@ -433,14 +433,14 @@ No output means the syntax is valid.
 Create:
 
 ```bash
-sudo nano /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo nano /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Add this content and replace `YOUR_SERVER_IP`:
 
 ```zone
 $TTL 3600
-@   IN  SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. (
+@   IN  SOA ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. (
         2026063001 ; serial, format YYYYMMDDnn
         3600       ; refresh
         900        ; retry
@@ -448,7 +448,7 @@ $TTL 3600
         900 )      ; negative cache TTL
 
 ; Authoritative nameservers
-@       IN  NS  ns.slimme-rik.sasm.uclllabs.be.
+@       IN  NS  ns.ignace-vanbrabant.sasm.uclllabs.be.
 @       IN  NS  ns1.uclllabs.be.
 @       IN  NS  ns2.uclllabs.be.
 
@@ -461,28 +461,28 @@ test    IN  A   193.191.177.254
 Important details:
 
 - The SOA serial must increase every time you change the zone.
-- `admin.slimme-rik.sasm.uclllabs.be.` represents the email address
-  `admin@slimme-rik.sasm.uclllabs.be`.
+- `admin.ignace-vanbrabant.sasm.uclllabs.be.` represents the email address
+  `admin@ignace-vanbrabant.sasm.uclllabs.be`.
 - The final dot on fully qualified names is important.
-- `@` means the zone itself: `slimme-rik.sasm.uclllabs.be`.
+- `@` means the zone itself: `ignace-vanbrabant.sasm.uclllabs.be`.
 
 Set permissions:
 
 ```bash
-sudo chown bind:bind /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
-sudo chmod 0644 /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo chown bind:bind /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
+sudo chmod 0644 /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Check the zone file:
 
 ```bash
-sudo named-checkzone slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo named-checkzone ignace-vanbrabant.sasm.uclllabs.be /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-zone slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026063001
+zone ignace-vanbrabant.sasm.uclllabs.be/IN: loaded serial 2026063001
 OK
 ```
 
@@ -515,16 +515,16 @@ sudo systemctl restart bind9
 Expected log lines:
 
 ```text
-zone slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026063001
+zone ignace-vanbrabant.sasm.uclllabs.be/IN: loaded serial 2026063001
 all zones loaded
 running
-zone slimme-rik.sasm.uclllabs.be/IN: sending notifies
+zone ignace-vanbrabant.sasm.uclllabs.be/IN: sending notifies
 ```
 
 If you see permission errors such as:
 
 ```text
-/var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be.jnl: create: permission denied
+/var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be.jnl: create: permission denied
 ```
 
 fix ownership:
@@ -539,7 +539,7 @@ sudo rndc reload
 ### Check the SOA record directly on your server
 
 ```bash
-dig -t SOA slimme-rik.sasm.uclllabs.be @localhost
+dig -t SOA ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 What the command does:
@@ -555,7 +555,7 @@ Expected important output:
 ;; flags: qr aa
 
 ;; ANSWER SECTION:
-slimme-rik.sasm.uclllabs.be. 3600 IN SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ignace-vanbrabant.sasm.uclllabs.be. 3600 IN SOA ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
 ```
 
 The `aa` flag means **authoritative answer**.
@@ -563,13 +563,13 @@ The `aa` flag means **authoritative answer**.
 ### Check the nameservers
 
 ```bash
-dig +short -t NS slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be.
 ns1.uclllabs.be.
 ns2.uclllabs.be.
 ```
@@ -577,9 +577,9 @@ ns2.uclllabs.be.
 ### Check the required A records
 
 ```bash
-dig +short ns.slimme-rik.sasm.uclllabs.be @localhost
-dig +short www.slimme-rik.sasm.uclllabs.be @localhost
-dig +short test.slimme-rik.sasm.uclllabs.be @localhost
+dig +short ns.ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short www.ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short test.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
@@ -612,7 +612,7 @@ After the UCLL parent zone delegates your zone, test through a recursive
 resolver:
 
 ```bash
-dig +short test.slimme-rik.sasm.uclllabs.be @recursive-dns.uclllabs.be
+dig +short test.ignace-vanbrabant.sasm.uclllabs.be @recursive-dns.uclllabs.be
 ```
 
 Expected result:
@@ -624,7 +624,7 @@ Expected result:
 Trace the delegation:
 
 ```bash
-dig +trace +nodnssec test.slimme-rik.sasm.uclllabs.be @8.8.8.8
+dig +trace +nodnssec test.ignace-vanbrabant.sasm.uclllabs.be @8.8.8.8
 ```
 
 What the command does:
@@ -636,7 +636,7 @@ What the command does:
 Expected final line:
 
 ```text
-test.slimme-rik.sasm.uclllabs.be. 3600 IN A 193.191.177.254
+test.ignace-vanbrabant.sasm.uclllabs.be. 3600 IN A 193.191.177.254
 ```
 
 ### Compare SOA records on all authoritative nameservers
@@ -644,7 +644,7 @@ test.slimme-rik.sasm.uclllabs.be. 3600 IN A 193.191.177.254
 Run:
 
 ```bash
-NAME=slimme-rik
+NAME=ignace-vanbrabant
 dig +short -t ns $NAME.sasm.uclllabs.be | while read DNS_SERVER; do
     printf "%-40s" "$DNS_SERVER"
     echo SOA: $(dig +short -t soa $NAME.sasm.uclllabs.be @$DNS_SERVER 2>&1)
@@ -654,9 +654,9 @@ done | sort
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.         SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
-ns1.uclllabs.be.                        SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
-ns2.uclllabs.be.                        SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns.ignace-vanbrabant.sasm.uclllabs.be.         SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns1.uclllabs.be.                        SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns2.uclllabs.be.                        SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
 ```
 
 All SOA serials must match. If they do not:
@@ -671,7 +671,7 @@ All SOA serials must match. If they do not:
 Run:
 
 ```bash
-NAME=slimme-rik
+NAME=ignace-vanbrabant
 dig +short -t ns $NAME.sasm.uclllabs.be | while read DNS_SERVER; do
     dig axfr $NAME.sasm.uclllabs.be @$DNS_SERVER | grep -v ';' | sort | sha256sum
 done
@@ -738,9 +738,9 @@ include "/etc/bind/ddns.key";
 Update the main zone stanza:
 
 ```text
-zone "slimme-rik.sasm.uclllabs.be" {
+zone "ignace-vanbrabant.sasm.uclllabs.be" {
     type master;
-    file "/var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be";
+    file "/var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be";
     allow-transfer {
         127.0.0.1;
         ::1;
@@ -777,8 +777,8 @@ Type:
 
 ```text
 server 127.0.0.1
-zone slimme-rik.sasm.uclllabs.be
-update add ddnstest.slimme-rik.sasm.uclllabs.be. 60 IN A 192.0.2.123
+zone ignace-vanbrabant.sasm.uclllabs.be
+update add ddnstest.ignace-vanbrabant.sasm.uclllabs.be. 60 IN A 192.0.2.123
 send
 quit
 ```
@@ -786,7 +786,7 @@ quit
 Verify:
 
 ```bash
-dig +short ddnstest.slimme-rik.sasm.uclllabs.be @localhost
+dig +short ddnstest.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
@@ -805,8 +805,8 @@ Type:
 
 ```text
 server 127.0.0.1
-zone slimme-rik.sasm.uclllabs.be
-update delete ddnstest.slimme-rik.sasm.uclllabs.be. A
+zone ignace-vanbrabant.sasm.uclllabs.be
+update delete ddnstest.ignace-vanbrabant.sasm.uclllabs.be. A
 send
 quit
 ```
@@ -931,7 +931,7 @@ check$ sudo dns_add_zone foobar
 must create:
 
 ```text
-foobar.slimme-rik.sasm.uclllabs.be
+foobar.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 It must:
@@ -964,7 +964,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-FQDN = "slimme-rik.sasm.uclllabs.be"
+FQDN = "ignace-vanbrabant.sasm.uclllabs.be"
 ZONE_DIR = Path("/var/lib/bind/yoda")
 BIND_CONFIG = Path("/etc/bind/named.conf.yoda-zones")
 TSIG_KEY = "/etc/bind/ddns.key"
@@ -1100,33 +1100,33 @@ sudo dns_add_zone foobar
 Expected result:
 
 ```text
-zone foobar.slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026063001
+zone foobar.ignace-vanbrabant.sasm.uclllabs.be/IN: loaded serial 2026063001
 OK
-Created zone foobar.slimme-rik.sasm.uclllabs.be
+Created zone foobar.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Verify:
 
 ```bash
-dig +short -t NS foobar.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS foobar.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 Check parent delegation:
 
 ```bash
-dig +short -t NS foobar.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS foobar.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 ## 9. Script: `dns_add_record`
@@ -1138,32 +1138,32 @@ The command supports `A`, `CNAME`, and `MX`.
 Default `A` record:
 
 ```bash
-check$ sudo dns_add_record test 12.34.56.78 foobar.slimme-rik.sasm.uclllabs.be
+check$ sudo dns_add_record test 12.34.56.78 foobar.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Explicit `A` record:
 
 ```bash
-check$ sudo dns_add_record -t A test 12.34.56.78 foobar.slimme-rik.sasm.uclllabs.be
+check$ sudo dns_add_record -t A test 12.34.56.78 foobar.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 `CNAME` record:
 
 ```bash
-check$ sudo dns_add_record -t CNAME wwwwww www.slimme-rik.sasm.uclllabs.be
+check$ sudo dns_add_record -t CNAME wwwwww www.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 `MX` record:
 
 ```bash
-check$ sudo dns_add_record -t MX mail YOUR_SERVER_IP slimme-rik.sasm.uclllabs.be
+check$ sudo dns_add_record -t MX mail YOUR_SERVER_IP ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 For `MX`, the script must create two records:
 
 ```text
-slimme-rik.sasm.uclllabs.be. IN MX 10 mail.slimme-rik.sasm.uclllabs.be.
-mail.slimme-rik.sasm.uclllabs.be. IN A YOUR_SERVER_IP
+ignace-vanbrabant.sasm.uclllabs.be. IN MX 10 mail.ignace-vanbrabant.sasm.uclllabs.be.
+mail.ignace-vanbrabant.sasm.uclllabs.be. IN A YOUR_SERVER_IP
 ```
 
 ### Script content
@@ -1186,7 +1186,7 @@ import re
 import subprocess
 import sys
 
-FQDN = "slimme-rik.sasm.uclllabs.be"
+FQDN = "ignace-vanbrabant.sasm.uclllabs.be"
 TSIG_KEY = "/etc/bind/ddns.key"
 TTL = 3600
 
@@ -1249,7 +1249,7 @@ send
 def parse_args():
     parser = argparse.ArgumentParser(
         prog="dns_add_record",
-        description="Add A, CNAME, or MX records to a slimme-rik DNS zone.",
+        description="Add A, CNAME, or MX records to an ignace-vanbrabant DNS zone.",
     )
     parser.add_argument("-t", "--type", default="A", choices=["A", "CNAME", "MX"])
     parser.add_argument("name")
@@ -1306,20 +1306,20 @@ sudo chmod 0750 /etc/scripts/dns_add_record.py
 As user `check`, run:
 
 ```bash
-sudo dns_add_record -t A test 12.34.56.78 foobar.slimme-rik.sasm.uclllabs.be
+sudo dns_add_record -t A test 12.34.56.78 foobar.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-Added A record data to foobar.slimme-rik.sasm.uclllabs.be:
-test.foobar.slimme-rik.sasm.uclllabs.be. 3600 IN A 12.34.56.78
+Added A record data to foobar.ignace-vanbrabant.sasm.uclllabs.be:
+test.foobar.ignace-vanbrabant.sasm.uclllabs.be. 3600 IN A 12.34.56.78
 ```
 
 Verify:
 
 ```bash
-dig +short test.foobar.slimme-rik.sasm.uclllabs.be @localhost
+dig +short test.foobar.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
@@ -1331,28 +1331,28 @@ Expected result:
 Test a CNAME:
 
 ```bash
-sudo dns_add_record -t CNAME wwwwww www.slimme-rik.sasm.uclllabs.be
-dig +short wwwwww.slimme-rik.sasm.uclllabs.be @localhost
+sudo dns_add_record -t CNAME wwwwww www.ignace-vanbrabant.sasm.uclllabs.be
+dig +short wwwwww.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-www.slimme-rik.sasm.uclllabs.be.
+www.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 Test an MX record:
 
 ```bash
-sudo dns_add_record -t MX mail YOUR_SERVER_IP slimme-rik.sasm.uclllabs.be
-dig +short -t MX slimme-rik.sasm.uclllabs.be @localhost
-dig +short mail.slimme-rik.sasm.uclllabs.be @localhost
+sudo dns_add_record -t MX mail YOUR_SERVER_IP ignace-vanbrabant.sasm.uclllabs.be
+dig +short -t MX ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short mail.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-10 mail.slimme-rik.sasm.uclllabs.be.
+10 mail.ignace-vanbrabant.sasm.uclllabs.be.
 YOUR_SERVER_IP
 ```
 
@@ -1391,7 +1391,7 @@ import sys
 import time
 from pathlib import Path
 
-FQDN = "slimme-rik.sasm.uclllabs.be"
+FQDN = "ignace-vanbrabant.sasm.uclllabs.be"
 ZONE_DIR = Path("/var/lib/bind/yoda")
 BIND_CONFIG = Path("/etc/bind/named.conf.yoda-zones")
 TSIG_KEY = "/etc/bind/ddns.key"
@@ -1528,7 +1528,7 @@ exit
 Force its modification time to older than 4 hours:
 
 ```bash
-sudo touch -d '5 hours ago' /var/lib/bind/yoda/db.oldtest.slimme-rik.sasm.uclllabs.be
+sudo touch -d '5 hours ago' /var/lib/bind/yoda/db.oldtest.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Run cleanup:
@@ -1540,26 +1540,26 @@ sudo dns_cleanup
 Expected result:
 
 ```text
-Cleaning up oldtest.slimme-rik.sasm.uclllabs.be
+Cleaning up oldtest.ignace-vanbrabant.sasm.uclllabs.be
 Cleaned up 1 expired zone(s).
 ```
 
 Verify the zone file is gone:
 
 ```bash
-ls /var/lib/bind/yoda/db.oldtest.slimme-rik.sasm.uclllabs.be
+ls /var/lib/bind/yoda/db.oldtest.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-ls: cannot access '/var/lib/bind/yoda/db.oldtest.slimme-rik.sasm.uclllabs.be': No such file or directory
+ls: cannot access '/var/lib/bind/yoda/db.oldtest.ignace-vanbrabant.sasm.uclllabs.be': No such file or directory
 ```
 
 Verify the delegation is gone:
 
 ```bash
-dig +short -t NS oldtest.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS oldtest.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
@@ -1644,8 +1644,8 @@ Type:
 
 ```text
 server 127.0.0.1
-zone slimme-rik.sasm.uclllabs.be
-update add slimme-rik.sasm.uclllabs.be. 3600 IN NS ns.otherstudent.sasm.uclllabs.be.
+zone ignace-vanbrabant.sasm.uclllabs.be
+update add ignace-vanbrabant.sasm.uclllabs.be. 3600 IN NS ns.otherstudent.sasm.uclllabs.be.
 send
 quit
 ```
@@ -1661,10 +1661,10 @@ sudo rndc reload
 They add:
 
 ```text
-zone "slimme-rik.sasm.uclllabs.be" {
+zone "ignace-vanbrabant.sasm.uclllabs.be" {
     type slave;
     masters { YOUR_SERVER_IP; };
-    file "/var/cache/bind/db.slimme-rik.sasm.uclllabs.be";
+    file "/var/cache/bind/db.ignace-vanbrabant.sasm.uclllabs.be";
 };
 ```
 
@@ -1678,13 +1678,13 @@ sudo rndc reconfig
 ### Verify the extra slave
 
 ```bash
-dig +short -t SOA slimme-rik.sasm.uclllabs.be @ns.otherstudent.sasm.uclllabs.be
+dig +short -t SOA ignace-vanbrabant.sasm.uclllabs.be @ns.otherstudent.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
 ```
 
 ## 12. Troubleshooting checklist
@@ -1710,7 +1710,7 @@ Fix the line and run `named-checkconf` again.
 Run:
 
 ```bash
-sudo named-checkzone slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo named-checkzone ignace-vanbrabant.sasm.uclllabs.be /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Common errors:
@@ -1746,7 +1746,7 @@ What they do:
 If logs show:
 
 ```text
-zone transfer 'slimme-rik.sasm.uclllabs.be/AXFR/IN' denied
+zone transfer 'ignace-vanbrabant.sasm.uclllabs.be/AXFR/IN' denied
 ```
 
 then the requesting slave IP is missing from `allow-transfer`.
@@ -1780,7 +1780,7 @@ Fix:
 2. Reload the master:
 
    ```bash
-   sudo rndc reload slimme-rik.sasm.uclllabs.be
+   sudo rndc reload ignace-vanbrabant.sasm.uclllabs.be
    ```
 
 3. Watch logs:
@@ -1792,7 +1792,7 @@ Fix:
 4. Recheck SOA values:
 
    ```bash
-   NAME=slimme-rik
+   NAME=ignace-vanbrabant
    for NS in ns1 ns2 ns.$NAME.sasm; do
        echo "$(dig +short -t soa $NAME.sasm.uclllabs.be @$NS.uclllabs.be) ($NS.uclllabs.be)"
    done
@@ -1817,29 +1817,29 @@ Run these before marking the lab finished.
 
 ```bash
 sudo named-checkconf
-sudo named-checkzone slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo named-checkzone ignace-vanbrabant.sasm.uclllabs.be /var/lib/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-zone slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026063001
+zone ignace-vanbrabant.sasm.uclllabs.be/IN: loaded serial 2026063001
 OK
 ```
 
 Check local records:
 
 ```bash
-dig +short -t NS slimme-rik.sasm.uclllabs.be @localhost
-dig +short ns.slimme-rik.sasm.uclllabs.be @localhost
-dig +short www.slimme-rik.sasm.uclllabs.be @localhost
-dig +short test.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short ns.ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short www.ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short test.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be.
 ns1.uclllabs.be.
 ns2.uclllabs.be.
 YOUR_SERVER_IP
@@ -1850,7 +1850,7 @@ YOUR_SERVER_IP
 Check SOA synchronization:
 
 ```bash
-NAME=slimme-rik
+NAME=ignace-vanbrabant
 dig +short -t ns $NAME.sasm.uclllabs.be | while read DNS_SERVER; do
     printf "%-40s" "$DNS_SERVER"
     echo SOA: $(dig +short -t soa $NAME.sasm.uclllabs.be @$DNS_SERVER 2>&1)
@@ -1860,9 +1860,9 @@ done | sort
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.         SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
-ns1.uclllabs.be.                        SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
-ns2.uclllabs.be.                        SOA: ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns.ignace-vanbrabant.sasm.uclllabs.be.         SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns1.uclllabs.be.                        SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
+ns2.uclllabs.be.                        SOA: ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026063001 3600 900 1209600 900
 ```
 
 Check scripts:
@@ -1870,8 +1870,8 @@ Check scripts:
 ```bash
 su - check
 sudo dns_add_zone finaltest
-sudo dns_add_record -t A host 12.34.56.78 finaltest.slimme-rik.sasm.uclllabs.be
-dig +short host.finaltest.slimme-rik.sasm.uclllabs.be @localhost
+sudo dns_add_record -t A host 12.34.56.78 finaltest.ignace-vanbrabant.sasm.uclllabs.be
+dig +short host.finaltest.ignace-vanbrabant.sasm.uclllabs.be @localhost
 exit
 ```
 
@@ -1902,7 +1902,7 @@ Use this when you only need a normal authoritative zone.
 Example new zone:
 
 ```text
-exam.slimme-rik.sasm.uclllabs.be
+exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Create the static zone directory:
@@ -1914,9 +1914,9 @@ sudo mkdir -p /etc/bind/zones
 Add the zone to `/etc/bind/named.conf.local`:
 
 ```text
-zone "exam.slimme-rik.sasm.uclllabs.be" {
+zone "exam.ignace-vanbrabant.sasm.uclllabs.be" {
     type master;
-    file "/etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be";
+    file "/etc/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be";
     allow-transfer {
         127.0.0.1;
         ::1;
@@ -1934,21 +1934,21 @@ zone "exam.slimme-rik.sasm.uclllabs.be" {
 Create the zone file:
 
 ```bash
-sudo nano /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo nano /etc/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Example zone file:
 
 ```zone
 $TTL 3600
-@   IN  SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. (
+@   IN  SOA ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. (
         2026070101 ; serial, increase after every change
         3600       ; refresh
         900        ; retry
         1209600    ; expire
         900 )      ; negative cache TTL
 
-@       IN  NS  ns.slimme-rik.sasm.uclllabs.be.
+@       IN  NS  ns.ignace-vanbrabant.sasm.uclllabs.be.
 
 test    IN  A   193.191.177.254
 ```
@@ -1956,21 +1956,21 @@ test    IN  A   193.191.177.254
 Set readable permissions:
 
 ```bash
-sudo chown root:bind /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
-sudo chmod 0644 /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo chown root:bind /etc/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
+sudo chmod 0644 /etc/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Check before reloading:
 
 ```bash
 sudo named-checkconf
-sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo named-checkzone exam.ignace-vanbrabant.sasm.uclllabs.be /etc/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-zone exam.slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026070101
+zone exam.ignace-vanbrabant.sasm.uclllabs.be/IN: loaded serial 2026070101
 OK
 ```
 
@@ -1983,14 +1983,14 @@ sudo rndc reload
 Verify:
 
 ```bash
-dig +short -t SOA exam.slimme-rik.sasm.uclllabs.be @localhost
-dig +short test.exam.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t SOA exam.ignace-vanbrabant.sasm.uclllabs.be @localhost
+dig +short test.exam.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026070101 3600 900 1209600 900
+ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. 2026070101 3600 900 1209600 900
 193.191.177.254
 ```
 
@@ -2021,9 +2021,9 @@ sudo chmod 0775 /var/lib/bind/zones
 Add the dynamic zone to `/etc/bind/named.conf.local`:
 
 ```text
-zone "exam.slimme-rik.sasm.uclllabs.be" {
+zone "exam.ignace-vanbrabant.sasm.uclllabs.be" {
     type master;
-    file "/var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be";
+    file "/var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be";
     allow-transfer {
         127.0.0.1;
         ::1;
@@ -2042,35 +2042,35 @@ zone "exam.slimme-rik.sasm.uclllabs.be" {
 Create the first version of the zone file:
 
 ```bash
-sudo nano /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo nano /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Example zone file:
 
 ```zone
 $TTL 3600
-@   IN  SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. (
+@   IN  SOA ns.ignace-vanbrabant.sasm.uclllabs.be. admin.ignace-vanbrabant.sasm.uclllabs.be. (
         2026070101 ; serial
         3600       ; refresh
         900        ; retry
         1209600    ; expire
         900 )      ; negative cache TTL
 
-@       IN  NS  ns.slimme-rik.sasm.uclllabs.be.
+@       IN  NS  ns.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 Set permissions so BIND can write the `.jnl` file:
 
 ```bash
-sudo chown bind:bind /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
-sudo chmod 0644 /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo chown bind:bind /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
+sudo chmod 0644 /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Check and reload:
 
 ```bash
 sudo named-checkconf
-sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo named-checkzone exam.ignace-vanbrabant.sasm.uclllabs.be /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
 sudo rndc reload
 ```
 
@@ -2084,8 +2084,8 @@ Type:
 
 ```text
 server 127.0.0.1
-zone exam.slimme-rik.sasm.uclllabs.be
-update add test.exam.slimme-rik.sasm.uclllabs.be. 3600 IN A 193.191.177.254
+zone exam.ignace-vanbrabant.sasm.uclllabs.be
+update add test.exam.ignace-vanbrabant.sasm.uclllabs.be. 3600 IN A 193.191.177.254
 send
 quit
 ```
@@ -2093,7 +2093,7 @@ quit
 Verify:
 
 ```bash
-dig +short test.exam.slimme-rik.sasm.uclllabs.be @localhost
+dig +short test.exam.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
@@ -2107,22 +2107,22 @@ Expected result:
 If you create a subzone like:
 
 ```text
-exam.slimme-rik.sasm.uclllabs.be
+exam.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
-then the parent zone `slimme-rik.sasm.uclllabs.be` also needs an `NS`
+then the parent zone `ignace-vanbrabant.sasm.uclllabs.be` also needs an `NS`
 delegation:
 
 ```text
-exam.slimme-rik.sasm.uclllabs.be. 3600 IN NS ns.slimme-rik.sasm.uclllabs.be.
+exam.ignace-vanbrabant.sasm.uclllabs.be. 3600 IN NS ns.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 For a static parent zone, add that record manually to the parent zone file,
 increase the parent SOA serial, then reload:
 
 ```bash
-sudo named-checkzone slimme-rik.sasm.uclllabs.be /etc/bind/zones/db.slimme-rik.sasm.uclllabs.be
-sudo rndc reload slimme-rik.sasm.uclllabs.be
+sudo named-checkzone ignace-vanbrabant.sasm.uclllabs.be /etc/bind/zones/db.ignace-vanbrabant.sasm.uclllabs.be
+sudo rndc reload ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 For a dynamic parent zone, add the delegation with `nsupdate`:
@@ -2135,8 +2135,8 @@ Type:
 
 ```text
 server 127.0.0.1
-zone slimme-rik.sasm.uclllabs.be
-update add exam.slimme-rik.sasm.uclllabs.be. 3600 IN NS ns.slimme-rik.sasm.uclllabs.be.
+zone ignace-vanbrabant.sasm.uclllabs.be
+update add exam.ignace-vanbrabant.sasm.uclllabs.be. 3600 IN NS ns.ignace-vanbrabant.sasm.uclllabs.be.
 send
 quit
 ```
@@ -2144,13 +2144,13 @@ quit
 Check the delegation:
 
 ```bash
-dig +short -t NS exam.slimme-rik.sasm.uclllabs.be @localhost
+dig +short -t NS exam.ignace-vanbrabant.sasm.uclllabs.be @localhost
 ```
 
 Expected result:
 
 ```text
-ns.slimme-rik.sasm.uclllabs.be.
+ns.ignace-vanbrabant.sasm.uclllabs.be.
 ```
 
 ### Rules that prevent breaking BIND
@@ -2167,8 +2167,8 @@ ns.slimme-rik.sasm.uclllabs.be.
   then thaw it:
 
   ```bash
-  sudo rndc freeze exam.slimme-rik.sasm.uclllabs.be
-  sudo nano /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
-  sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
-  sudo rndc thaw exam.slimme-rik.sasm.uclllabs.be
+  sudo rndc freeze exam.ignace-vanbrabant.sasm.uclllabs.be
+  sudo nano /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
+  sudo named-checkzone exam.ignace-vanbrabant.sasm.uclllabs.be /var/lib/bind/zones/db.exam.ignace-vanbrabant.sasm.uclllabs.be
+  sudo rndc thaw exam.ignace-vanbrabant.sasm.uclllabs.be
   ```
