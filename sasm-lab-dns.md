@@ -17,7 +17,6 @@ By the end, you should be able to:
 - Verify the master and slave nameservers with `dig`.
 - Automate temporary subzone and record creation with scripts.
 - Automatically clean up scripted zones older than 4 hours.
-- Keep a useful Git revision trail with descriptive commits.
 
 > Important: replace `YOUR_SERVER_IP` everywhere with the IPv4 address of your
 > own server. In the examples from the assignment this is often in the
@@ -237,65 +236,9 @@ as an extra slave nameserver.
 
 ## 4. Step-by-step BIND9 configuration
 
-The commands below assume Ubuntu and a repository that tracks configuration from
-`/etc`.
+The commands below assume Ubuntu and a user with `sudo` rights.
 
-### Step 1: Start in `/etc` and check Git
-
-```bash
-cd /etc
-git status
-```
-
-What the command does:
-
-- `cd /etc` moves to the directory where system configuration is stored.
-- `git status` shows the current branch and any uncommitted changes.
-
-Expected result:
-
-```text
-On branch main
-nothing to commit, working tree clean
-```
-
-If the tree is not clean, inspect the changes before continuing:
-
-```bash
-git diff
-```
-
-Create a small progress note:
-
-```bash
-nano dns-lab-progress.md
-```
-
-Add:
-
-```markdown
-# DNS lab progress
-
-Started the DNS lab by checking Git status before changing BIND configuration.
-```
-
-Commit it:
-
-```bash
-git add dns-lab-progress.md
-git commit -m "Start DNS lab progress notes"
-```
-
-Expected result:
-
-```text
-[main abc1234] Start DNS lab progress notes
- 1 file changed, ...
-```
-
-The exact commit hash will be different.
-
-### Step 2: Discover your server IP address
+### Step 1: Discover your server IP address
 
 Run:
 
@@ -324,7 +267,7 @@ YOUR_SERVER_IP=193.191.176.50
 
 Use your own address in the rest of the guide.
 
-### Step 3: Install BIND9
+### Step 2: Install BIND9
 
 ```bash
 sudo apt update
@@ -358,16 +301,7 @@ Expected important lines:
 Active: active (running)
 ```
 
-Commit the package installation changes if your `/etc` Git repository tracks
-them:
-
-```bash
-git status
-git add .
-git commit -m "Install BIND9 DNS server"
-```
-
-### Step 4: Configure BIND as authoritative-only
+### Step 3: Configure BIND as authoritative-only
 
 Open the options file:
 
@@ -412,14 +346,7 @@ Expected result:
 
 No output means the syntax is valid.
 
-Commit:
-
-```bash
-git add /etc/bind/named.conf.options
-git commit -m "Disable recursive DNS service"
-```
-
-### Step 5: Create a writable zone directory
+### Step 4: Create a writable zone directory
 
 Use `/var/lib/bind` for zone files that BIND may need to update later. This
 matches Ubuntu's default AppArmor profile.
@@ -448,7 +375,7 @@ Expected result:
 drwxrwxr-x 2 bind bind 4096 ... /var/lib/bind/zones
 ```
 
-### Step 6: Define the zone in `named.conf.local`
+### Step 5: Define the zone in `named.conf.local`
 
 Open:
 
@@ -501,7 +428,7 @@ Expected result:
 
 No output means the syntax is valid.
 
-### Step 7: Create the zone file
+### Step 6: Create the zone file
 
 Create:
 
@@ -559,20 +486,7 @@ zone slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026063001
 OK
 ```
 
-Commit:
-
-```bash
-git add /etc/bind/named.conf.local
-git commit -m "Configure slimme-rik authoritative DNS zone"
-```
-
-If your Git repository is only in `/etc`, it cannot directly track
-`/var/lib/bind/zones/db.slimme-rik.sasm.uclllabs.be`. In that case, either keep
-an extra repository in `/var/lib/bind` or clearly document the zone-file change
-in `dns-lab-progress.md`. The important point for evaluation is that your Git
-history shows when and why the DNS zone was configured.
-
-### Step 8: Reload BIND and inspect logs
+### Step 7: Reload BIND and inspect logs
 
 Use one terminal for logs:
 
@@ -851,17 +765,6 @@ sudo named-checkconf
 sudo rndc reload
 ```
 
-Commit:
-
-```bash
-git add /etc/bind/named.conf.local /etc/bind/ddns.key
-git commit -m "Allow authenticated DNS updates"
-```
-
-> Note: only commit `/etc/bind/ddns.key` if your lab repository is private and
-> your lecturer expects all relevant configuration to be tracked. Never publish
-> TSIG secrets in a public repository.
-
 ### Step 3: Test `nsupdate`
 
 Add a temporary record:
@@ -931,35 +834,6 @@ What this does:
 - BIND reads `named.conf.local`.
 - When it sees the `include`, it also reads the generated Yoda zone file.
 - Automatically created zones stay separate from your hand-written config.
-
-Ignore generated content in Git:
-
-```bash
-sudo nano /etc/.gitignore
-```
-
-Add:
-
-```gitignore
-/bind/named.conf.yoda-zones
-/bind/named.conf.yoda-zones.tmp
-/scripts/*.pyc
-```
-
-If you track `/var/lib/bind` in a separate Git repository, ignore generated
-Yoda zone files there too:
-
-```gitignore
-/yoda/db.*
-/yoda/*.jnl
-```
-
-Commit:
-
-```bash
-git add /etc/bind/named.conf.local /etc/.gitignore
-git commit -m "Separate generated DNS zone configuration"
-```
 
 ### Step 2: Create the script and zone directories
 
@@ -1042,13 +916,6 @@ Expected result:
 
 ```text
 /etc/sudoers.d/dns-lab-check: parsed OK
-```
-
-Commit:
-
-```bash
-git add /etc/scripts /etc/sudoers.d/dns-lab-check
-git commit -m "Prepare DNS automation script entrypoints"
 ```
 
 ## 8. Script: `dns_add_zone`
@@ -1214,13 +1081,6 @@ Make it executable:
 
 ```bash
 sudo chmod 0750 /etc/scripts/dns_add_zone.py
-```
-
-Commit:
-
-```bash
-git add /etc/scripts/dns_add_zone.py
-git commit -m "Add DNS subzone creation script"
 ```
 
 ### Test `dns_add_zone`
@@ -1441,13 +1301,6 @@ Make it executable:
 sudo chmod 0750 /etc/scripts/dns_add_record.py
 ```
 
-Commit:
-
-```bash
-git add /etc/scripts/dns_add_record.py
-git commit -m "Add DNS record creation script"
-```
-
 ### Test `dns_add_record`
 
 As user `check`, run:
@@ -1662,13 +1515,6 @@ Make it executable:
 sudo chmod 0750 /etc/scripts/dns_cleanup.py
 ```
 
-Commit:
-
-```bash
-git add /etc/scripts/dns_cleanup.py
-git commit -m "Add DNS generated zone cleanup script"
-```
-
 ### Test `dns_cleanup`
 
 Create a test zone:
@@ -1756,13 +1602,6 @@ Expected result:
 30 * * * * /usr/local/sbin/dns_cleanup
 ```
 
-Commit if your lab repository tracks cron files:
-
-```bash
-git add /var/spool/cron/crontabs/root
-git commit -m "Schedule DNS generated zone cleanup"
-```
-
 ## 11. Add another student's server as slave
 
 Do this only after the master, `ns1.uclllabs.be`, and `ns2.uclllabs.be` all work.
@@ -1815,13 +1654,6 @@ Reload:
 
 ```bash
 sudo rndc reload
-```
-
-Commit:
-
-```bash
-git add /etc/bind/named.conf.local
-git commit -m "Allow student slave DNS transfer"
 ```
 
 ### On the other student's server
@@ -2048,43 +1880,3 @@ Expected result:
 ```text
 12.34.56.78
 ```
-
-## 14. Git revision trail checklist
-
-The lab explicitly checks that you document progress in Git. Good commits for
-this lab could be:
-
-```bash
-git commit -m "Start DNS lab progress notes"
-git commit -m "Install BIND9 DNS server"
-git commit -m "Disable recursive DNS service"
-git commit -m "Configure slimme-rik authoritative DNS zone"
-git commit -m "Allow authenticated DNS updates"
-git commit -m "Separate generated DNS zone configuration"
-git commit -m "Prepare DNS automation script entrypoints"
-git commit -m "Add DNS subzone creation script"
-git commit -m "Add DNS record creation script"
-git commit -m "Add DNS generated zone cleanup script"
-git commit -m "Schedule DNS generated zone cleanup"
-```
-
-Before pushing:
-
-```bash
-git status
-git log --oneline --decorate -n 10
-```
-
-Expected result:
-
-```text
-nothing to commit, working tree clean
-```
-
-Push:
-
-```bash
-git push
-```
-
-Your repository now contains a clear revision trail for the DNS assignment.
