@@ -5,7 +5,7 @@
 In this lab you configure an Apache HTTP webserver for:
 
 ```text
-slimme-rik.sasm.uclllabs.be
+ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 By the end, you should be able to:
@@ -22,7 +22,7 @@ By the end, you should be able to:
 - Keep a clear git revision trail with descriptive commits.
 
 > Important: this guide uses Apache on Ubuntu/Debian. Replace
-> `slimme-rik` with your own machine name if your lab machine has a different
+> `ignace-vanbrabant` with your own machine name if your lab machine has a different
 > name.
 
 ## 1. HTTP theory you need to know
@@ -36,7 +36,7 @@ Simple HTTP request:
 
 ```http
 GET /toupper.php?code=AbCdEfGh123 HTTP/1.1
-Host: www2.slimme-rik.sasm.uclllabs.be
+Host: www2.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Important parts:
@@ -68,8 +68,8 @@ by looking at the `Host` header.
 Example:
 
 ```text
-Host: www1.slimme-rik.sasm.uclllabs.be -> www1 vhost
-Host: www2.slimme-rik.sasm.uclllabs.be -> www2 vhost
+Host: www1.ignace-vanbrabant.sasm.uclllabs.be -> www1 vhost
+Host: www2.ignace-vanbrabant.sasm.uclllabs.be -> www2 vhost
 Host: does-not-exist.example           -> default vhost
 No Host header, HTTP/1.0 request       -> default vhost
 ```
@@ -222,9 +222,9 @@ git commit -m "Install Apache and HTTP lab tools"
 Check the main names:
 
 ```bash
-dig +short www.slimme-rik.sasm.uclllabs.be
-dig +short www1.slimme-rik.sasm.uclllabs.be
-dig +short www2.slimme-rik.sasm.uclllabs.be
+dig +short www.ignace-vanbrabant.sasm.uclllabs.be
+dig +short www1.ignace-vanbrabant.sasm.uclllabs.be
+dig +short www2.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 What this does:
@@ -248,8 +248,8 @@ Create directories:
 
 ```bash
 sudo mkdir -p /var/www/html/default
-sudo mkdir -p /var/www/html/www1.slimme-rik.sasm.uclllabs.be/private
-sudo mkdir -p /var/www/html/www2.slimme-rik.sasm.uclllabs.be
+sudo mkdir -p /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be/private
+sudo mkdir -p /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 What this does:
@@ -286,7 +286,7 @@ welcome default
 Create the `www1` page:
 
 ```bash
-echo 'www1' | sudo tee /var/www/html/www1.slimme-rik.sasm.uclllabs.be/index.html
+echo 'www1' | sudo tee /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be/index.html
 ```
 
 What this does:
@@ -304,7 +304,7 @@ www1
 Create a private test page for `www1`:
 
 ```bash
-echo 'private www1 page' | sudo tee /var/www/html/www1.slimme-rik.sasm.uclllabs.be/private/index.html
+echo 'private www1 page' | sudo tee /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be/private/index.html
 ```
 
 What this does:
@@ -320,7 +320,7 @@ private www1 page
 Create the PHP page for `www2`:
 
 ```bash
-sudo tee /var/www/html/www2.slimme-rik.sasm.uclllabs.be/toupper.php >/dev/null <<'PHP'
+sudo tee /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be/toupper.php >/dev/null <<'PHP'
 <?php
 $code = $_GET['code'] ?? '';
 echo htmlspecialchars(strtoupper($code), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -344,9 +344,9 @@ No output means the file was written successfully.
 Set safe ownership and permissions:
 
 ```bash
-sudo chown -R root:root /var/www/html/default /var/www/html/www1.slimme-rik.sasm.uclllabs.be /var/www/html/www2.slimme-rik.sasm.uclllabs.be
-sudo find /var/www/html/default /var/www/html/www1.slimme-rik.sasm.uclllabs.be /var/www/html/www2.slimme-rik.sasm.uclllabs.be -type d -exec chmod 0755 {} \;
-sudo find /var/www/html/default /var/www/html/www1.slimme-rik.sasm.uclllabs.be /var/www/html/www2.slimme-rik.sasm.uclllabs.be -type f -exec chmod 0644 {} \;
+sudo chown -R root:root /var/www/html/default /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be
+sudo find /var/www/html/default /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be -type d -exec chmod 0755 {} \;
+sudo find /var/www/html/default /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be -type f -exec chmod 0644 {} \;
 ```
 
 What this does:
@@ -411,7 +411,7 @@ No output means the permissions were applied.
 Create the `.htaccess` file:
 
 ```bash
-sudo tee /var/www/html/www1.slimme-rik.sasm.uclllabs.be/private/.htaccess >/dev/null <<'EOF'
+sudo tee /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be/private/.htaccess >/dev/null <<'EOF'
 AuthType Basic
 AuthName "www1 private"
 AuthUserFile /etc/apache2/.htpasswd-www1-private
@@ -465,12 +465,12 @@ Create the lab default vhost:
 ```bash
 sudo tee /etc/apache2/sites-available/000-sasm-default.conf >/dev/null <<'EOF'
 <VirtualHost *:80>
-    ServerName www.slimme-rik.sasm.uclllabs.be
+    ServerName www.ignace-vanbrabant.sasm.uclllabs.be
     ServerAlias *
     DocumentRoot /var/www/html/default
 
-    ErrorLog ${APACHE_LOG_DIR}/slimme-rik-default-error.log
-    CustomLog ${APACHE_LOG_DIR}/slimme-rik-default-access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/ignace-vanbrabant-default-error.log
+    CustomLog ${APACHE_LOG_DIR}/ignace-vanbrabant-default-access.log combined
 
     <Directory /var/www/html/default>
         Options -Indexes
@@ -498,15 +498,15 @@ No output means the file was written successfully.
 Create the `www1` vhost:
 
 ```bash
-sudo tee /etc/apache2/sites-available/www1.slimme-rik.sasm.uclllabs.be.conf >/dev/null <<'EOF'
+sudo tee /etc/apache2/sites-available/www1.ignace-vanbrabant.sasm.uclllabs.be.conf >/dev/null <<'EOF'
 <VirtualHost *:80>
-    ServerName www1.slimme-rik.sasm.uclllabs.be
-    DocumentRoot /var/www/html/www1.slimme-rik.sasm.uclllabs.be
+    ServerName www1.ignace-vanbrabant.sasm.uclllabs.be
+    DocumentRoot /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be
 
-    ErrorLog ${APACHE_LOG_DIR}/www1-slimme-rik-error.log
-    CustomLog ${APACHE_LOG_DIR}/www1-slimme-rik-access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/www1-ignace-vanbrabant-error.log
+    CustomLog ${APACHE_LOG_DIR}/www1-ignace-vanbrabant-access.log combined
 
-    <Directory /var/www/html/www1.slimme-rik.sasm.uclllabs.be>
+    <Directory /var/www/html/www1.ignace-vanbrabant.sasm.uclllabs.be>
         Options -Indexes
         AllowOverride AuthConfig
         Require all granted
@@ -517,7 +517,7 @@ EOF
 
 What this does:
 
-- Creates a vhost for `www1.slimme-rik.sasm.uclllabs.be`.
+- Creates a vhost for `www1.ignace-vanbrabant.sasm.uclllabs.be`.
 - Allows `.htaccess` authentication rules.
 - Keeps directory listing disabled.
 - Uses vhost-specific logs.
@@ -530,15 +530,15 @@ Expected result:
 Create the `www2` vhost:
 
 ```bash
-sudo tee /etc/apache2/sites-available/www2.slimme-rik.sasm.uclllabs.be.conf >/dev/null <<'EOF'
+sudo tee /etc/apache2/sites-available/www2.ignace-vanbrabant.sasm.uclllabs.be.conf >/dev/null <<'EOF'
 <VirtualHost *:80>
-    ServerName www2.slimme-rik.sasm.uclllabs.be
-    DocumentRoot /var/www/html/www2.slimme-rik.sasm.uclllabs.be
+    ServerName www2.ignace-vanbrabant.sasm.uclllabs.be
+    DocumentRoot /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be
 
-    ErrorLog ${APACHE_LOG_DIR}/www2-slimme-rik-error.log
-    CustomLog ${APACHE_LOG_DIR}/www2-slimme-rik-access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/www2-ignace-vanbrabant-error.log
+    CustomLog ${APACHE_LOG_DIR}/www2-ignace-vanbrabant-access.log combined
 
-    <Directory /var/www/html/www2.slimme-rik.sasm.uclllabs.be>
+    <Directory /var/www/html/www2.ignace-vanbrabant.sasm.uclllabs.be>
         Options -Indexes
         AllowOverride None
         Require all granted
@@ -549,7 +549,7 @@ EOF
 
 What this does:
 
-- Creates a vhost for `www2.slimme-rik.sasm.uclllabs.be`.
+- Creates a vhost for `www2.ignace-vanbrabant.sasm.uclllabs.be`.
 - Serves the PHP `toupper.php` page.
 - Disables directory listing.
 - Uses vhost-specific logs.
@@ -563,8 +563,8 @@ Enable the vhosts:
 
 ```bash
 sudo a2ensite 000-sasm-default.conf
-sudo a2ensite www1.slimme-rik.sasm.uclllabs.be.conf
-sudo a2ensite www2.slimme-rik.sasm.uclllabs.be.conf
+sudo a2ensite www1.ignace-vanbrabant.sasm.uclllabs.be.conf
+sudo a2ensite www2.ignace-vanbrabant.sasm.uclllabs.be.conf
 ```
 
 What this does:
@@ -576,8 +576,8 @@ Expected result:
 
 ```text
 Enabling site 000-sasm-default.
-Enabling site www1.slimme-rik.sasm.uclllabs.be.
-Enabling site www2.slimme-rik.sasm.uclllabs.be.
+Enabling site www1.ignace-vanbrabant.sasm.uclllabs.be.
+Enabling site www2.ignace-vanbrabant.sasm.uclllabs.be.
 To activate the new configuration, you need to run:
   systemctl reload apache2
 ```
@@ -629,7 +629,7 @@ git commit -m "Configure required Apache virtual hosts"
 Test the configured default name:
 
 ```bash
-curl -s -H 'Host: www.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: www.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 What this does:
@@ -646,7 +646,7 @@ welcome default
 Test a non-existing host header:
 
 ```bash
-curl -s -H 'Host: not-existing.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: not-existing.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 What this does:
@@ -680,7 +680,7 @@ welcome default
 Test `www1`:
 
 ```bash
-curl -s -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 What this does:
@@ -696,7 +696,7 @@ www1
 Check that the page does not contain `welcome`:
 
 ```bash
-curl -s -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/ | grep -i welcome
+curl -s -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/ | grep -i welcome
 ```
 
 What this does:
@@ -715,7 +715,7 @@ No output means `welcome` was not found.
 Try without credentials:
 
 ```bash
-curl -i -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/private/
+curl -i -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/private/
 ```
 
 What this does:
@@ -732,7 +732,7 @@ WWW-Authenticate: Basic realm="www1 private"
 Try with the required credentials:
 
 ```bash
-curl -s -u check:ch3ck -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/private/
+curl -s -u check:ch3ck -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/private/
 ```
 
 What this does:
@@ -750,7 +750,7 @@ private www1 page
 Test the required PHP page:
 
 ```bash
-curl -s -H 'Host: www2.slimme-rik.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
+curl -s -H 'Host: www2.ignace-vanbrabant.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
 ```
 
 What this does:
@@ -767,7 +767,7 @@ ABCDEFGH123
 Test directory listing:
 
 ```bash
-curl -i -H 'Host: www2.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -i -H 'Host: www2.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 What this does:
@@ -812,7 +812,7 @@ Capturing on 'any'
 In another terminal, make a request:
 
 ```bash
-curl -s -H 'Host: www2.slimme-rik.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
+curl -s -H 'Host: www2.ignace-vanbrabant.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
 ```
 
 Expected `curl` result:
@@ -824,7 +824,7 @@ ABCDEFGH123
 Expected `tshark` line:
 
 ```text
-127.0.0.1    127.0.0.1    GET    www2.slimme-rik.sasm.uclllabs.be    /toupper.php?code=AbCdEfGh123
+127.0.0.1    127.0.0.1    GET    www2.ignace-vanbrabant.sasm.uclllabs.be    /toupper.php?code=AbCdEfGh123
 ```
 
 Stop `tshark` with `Ctrl+C`.
@@ -939,7 +939,7 @@ sudo tee /etc/scripts/http_add_vhost >/dev/null <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_DOMAIN="slimme-rik.sasm.uclllabs.be"
+BASE_DOMAIN="ignace-vanbrabant.sasm.uclllabs.be"
 SITES_AVAILABLE="/etc/apache2/sites-available"
 DOCROOT_BASE="/var/www/html"
 LOG_DIR="/var/log/apache2"
@@ -1035,7 +1035,7 @@ What this does:
 - Allows only `SUDO_USER=check`.
 - Accepts exactly one argument: the FQDN.
 - Rejects invalid names.
-- Rejects names outside `slimme-rik.sasm.uclllabs.be`.
+- Rejects names outside `ignace-vanbrabant.sasm.uclllabs.be`.
 - Rejects names that do not exist in DNS.
 - Creates the document root.
 - Creates `index.html` containing exactly `welcome vhost_name`.
@@ -1097,7 +1097,7 @@ First make sure the test name exists in DNS. Replace `subdomain` with a
 subdomain that your DNS script created:
 
 ```bash
-dig +short subdomain.slimme-rik.sasm.uclllabs.be
+dig +short subdomain.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
@@ -1125,7 +1125,7 @@ check@your-server:~$
 Run the script exactly as required:
 
 ```bash
-sudo http_add_vhost subdomain.slimme-rik.sasm.uclllabs.be
+sudo http_add_vhost subdomain.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 What this does:
@@ -1136,33 +1136,33 @@ What this does:
 Expected result:
 
 ```text
-created vhost subdomain.slimme-rik.sasm.uclllabs.be
-document root: /var/www/html/subdomain.slimme-rik.sasm.uclllabs.be
-config: /etc/apache2/sites-available/auto-http-subdomain.slimme-rik.sasm.uclllabs.be.conf
+created vhost subdomain.ignace-vanbrabant.sasm.uclllabs.be
+document root: /var/www/html/subdomain.ignace-vanbrabant.sasm.uclllabs.be
+config: /etc/apache2/sites-available/auto-http-subdomain.ignace-vanbrabant.sasm.uclllabs.be.conf
 ```
 
 Test the new vhost:
 
 ```bash
-curl -s -H 'Host: subdomain.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: subdomain.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 Expected result:
 
 ```text
-welcome subdomain.slimme-rik.sasm.uclllabs.be
+welcome subdomain.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Try a name that does not exist in DNS:
 
 ```bash
-sudo http_add_vhost does-not-exist.slimme-rik.sasm.uclllabs.be
+sudo http_add_vhost does-not-exist.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
 
 ```text
-ERROR: domain does not exist in DNS: does-not-exist.slimme-rik.sasm.uclllabs.be
+ERROR: domain does not exist in DNS: does-not-exist.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Leave the `check` shell:
@@ -1288,7 +1288,7 @@ Syntax OK
 Default vhost:
 
 ```bash
-curl -s -H 'Host: www.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: www.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 curl -s -H 'Host: fake.example' http://127.0.0.1/
 curl -s --http1.0 -H 'Host:' http://127.0.0.1/
 ```
@@ -1304,9 +1304,9 @@ welcome default
 `www1`:
 
 ```bash
-curl -s -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
-curl -i -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/private/
-curl -s -u check:ch3ck -H 'Host: www1.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/private/
+curl -s -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
+curl -i -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/private/
+curl -s -u check:ch3ck -H 'Host: www1.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/private/
 ```
 
 Expected result:
@@ -1320,8 +1320,8 @@ private www1 page
 `www2`:
 
 ```bash
-curl -s -H 'Host: www2.slimme-rik.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
-curl -i -H 'Host: www2.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+curl -s -H 'Host: www2.ignace-vanbrabant.sasm.uclllabs.be' 'http://127.0.0.1/toupper.php?code=AbCdEfGh123'
+curl -i -H 'Host: www2.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 ```
 
 Expected result:
@@ -1348,24 +1348,24 @@ Script execution check:
 
 ```bash
 su - check
-sudo http_add_vhost subdomain.slimme-rik.sasm.uclllabs.be
-curl -s -H 'Host: subdomain.slimme-rik.sasm.uclllabs.be' http://127.0.0.1/
+sudo http_add_vhost subdomain.ignace-vanbrabant.sasm.uclllabs.be
+curl -s -H 'Host: subdomain.ignace-vanbrabant.sasm.uclllabs.be' http://127.0.0.1/
 exit
 ```
 
 Expected result:
 
 ```text
-created vhost subdomain.slimme-rik.sasm.uclllabs.be
-welcome subdomain.slimme-rik.sasm.uclllabs.be
+created vhost subdomain.ignace-vanbrabant.sasm.uclllabs.be
+welcome subdomain.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Old generated vhost cleanup check:
 
 ```bash
-sudo touch -d '5 hours ago' /etc/apache2/sites-available/auto-http-subdomain.slimme-rik.sasm.uclllabs.be.conf
+sudo touch -d '5 hours ago' /etc/apache2/sites-available/auto-http-subdomain.ignace-vanbrabant.sasm.uclllabs.be.conf
 sudo /etc/scripts/http_cleanup_vhosts
-test ! -e /etc/apache2/sites-available/auto-http-subdomain.slimme-rik.sasm.uclllabs.be.conf && echo removed
+test ! -e /etc/apache2/sites-available/auto-http-subdomain.ignace-vanbrabant.sasm.uclllabs.be.conf && echo removed
 ```
 
 Expected result:
@@ -1469,8 +1469,8 @@ PATH=/etc/scripts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 Check DNS:
 
 ```bash
-getent ahosts subdomain.slimme-rik.sasm.uclllabs.be
-dig +short subdomain.slimme-rik.sasm.uclllabs.be
+getent ahosts subdomain.ignace-vanbrabant.sasm.uclllabs.be
+dig +short subdomain.ignace-vanbrabant.sasm.uclllabs.be
 ```
 
 Expected result:
