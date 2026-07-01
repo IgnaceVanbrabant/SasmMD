@@ -1880,3 +1880,295 @@ Expected result:
 ```text
 12.34.56.78
 ```
+
+## 14. Safely add a new zone
+
+This is the safe exam version. First decide what kind of zone you need:
+
+- **Static zone**: you edit the zone file yourself. Use this when the question
+  only says "add a zone".
+- **Dynamic zone**: records are changed with `nsupdate` or scripts. Use this
+  when the question mentions DDNS, Yoda, scripts, automatic records, or
+  `nsupdate`.
+
+Just creating a zone file does not make a zone dynamic. A zone becomes dynamic
+when the zone has `allow-update { key ddnskey; };` and BIND can write the
+journal file.
+
+### Option A: Add a normal static zone
+
+Use this when you only need a normal authoritative zone.
+
+Example new zone:
+
+```text
+exam.slimme-rik.sasm.uclllabs.be
+```
+
+Create the static zone directory:
+
+```bash
+sudo mkdir -p /etc/bind/zones
+```
+
+Add the zone to `/etc/bind/named.conf.local`:
+
+```text
+zone "exam.slimme-rik.sasm.uclllabs.be" {
+    type master;
+    file "/etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be";
+    allow-transfer {
+        127.0.0.1;
+        ::1;
+        193.191.177.20;
+        193.191.177.21;
+    };
+    notify yes;
+    also-notify {
+        193.191.177.20;
+        193.191.177.21;
+    };
+};
+```
+
+Create the zone file:
+
+```bash
+sudo nano /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+```
+
+Example zone file:
+
+```zone
+$TTL 3600
+@   IN  SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. (
+        2026070101 ; serial, increase after every change
+        3600       ; refresh
+        900        ; retry
+        1209600    ; expire
+        900 )      ; negative cache TTL
+
+@       IN  NS  ns.slimme-rik.sasm.uclllabs.be.
+
+test    IN  A   193.191.177.254
+```
+
+Set readable permissions:
+
+```bash
+sudo chown root:bind /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo chmod 0644 /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+```
+
+Check before reloading:
+
+```bash
+sudo named-checkconf
+sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /etc/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+```
+
+Expected result:
+
+```text
+zone exam.slimme-rik.sasm.uclllabs.be/IN: loaded serial 2026070101
+OK
+```
+
+Reload only after the checks are clean:
+
+```bash
+sudo rndc reload
+```
+
+Verify:
+
+```bash
+dig +short -t SOA exam.slimme-rik.sasm.uclllabs.be @localhost
+dig +short test.exam.slimme-rik.sasm.uclllabs.be @localhost
+```
+
+Expected result:
+
+```text
+ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. 2026070101 3600 900 1209600 900
+193.191.177.254
+```
+
+### Option B: Add a dynamic zone
+
+Use this when records must be added with `nsupdate` or scripts.
+
+Dynamic zones should live somewhere BIND can write, normally:
+
+```text
+/var/lib/bind/zones
+```
+
+Make sure the DDNS key is included in `/etc/bind/named.conf.local`:
+
+```text
+include "/etc/bind/ddns.key";
+```
+
+Create the writable zone directory:
+
+```bash
+sudo mkdir -p /var/lib/bind/zones
+sudo chown bind:bind /var/lib/bind/zones
+sudo chmod 0775 /var/lib/bind/zones
+```
+
+Add the dynamic zone to `/etc/bind/named.conf.local`:
+
+```text
+zone "exam.slimme-rik.sasm.uclllabs.be" {
+    type master;
+    file "/var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be";
+    allow-transfer {
+        127.0.0.1;
+        ::1;
+        193.191.177.20;
+        193.191.177.21;
+    };
+    allow-update { key ddnskey; };
+    notify yes;
+    also-notify {
+        193.191.177.20;
+        193.191.177.21;
+    };
+};
+```
+
+Create the first version of the zone file:
+
+```bash
+sudo nano /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+```
+
+Example zone file:
+
+```zone
+$TTL 3600
+@   IN  SOA ns.slimme-rik.sasm.uclllabs.be. admin.slimme-rik.sasm.uclllabs.be. (
+        2026070101 ; serial
+        3600       ; refresh
+        900        ; retry
+        1209600    ; expire
+        900 )      ; negative cache TTL
+
+@       IN  NS  ns.slimme-rik.sasm.uclllabs.be.
+```
+
+Set permissions so BIND can write the `.jnl` file:
+
+```bash
+sudo chown bind:bind /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo chmod 0644 /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+```
+
+Check and reload:
+
+```bash
+sudo named-checkconf
+sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+sudo rndc reload
+```
+
+Now add records with `nsupdate`:
+
+```bash
+sudo nsupdate -k /etc/bind/ddns.key
+```
+
+Type:
+
+```text
+server 127.0.0.1
+zone exam.slimme-rik.sasm.uclllabs.be
+update add test.exam.slimme-rik.sasm.uclllabs.be. 3600 IN A 193.191.177.254
+send
+quit
+```
+
+Verify:
+
+```bash
+dig +short test.exam.slimme-rik.sasm.uclllabs.be @localhost
+```
+
+Expected result:
+
+```text
+193.191.177.254
+```
+
+### If it is a subzone, delegate it from the parent
+
+If you create a subzone like:
+
+```text
+exam.slimme-rik.sasm.uclllabs.be
+```
+
+then the parent zone `slimme-rik.sasm.uclllabs.be` also needs an `NS`
+delegation:
+
+```text
+exam.slimme-rik.sasm.uclllabs.be. 3600 IN NS ns.slimme-rik.sasm.uclllabs.be.
+```
+
+For a static parent zone, add that record manually to the parent zone file,
+increase the parent SOA serial, then reload:
+
+```bash
+sudo named-checkzone slimme-rik.sasm.uclllabs.be /etc/bind/zones/db.slimme-rik.sasm.uclllabs.be
+sudo rndc reload slimme-rik.sasm.uclllabs.be
+```
+
+For a dynamic parent zone, add the delegation with `nsupdate`:
+
+```bash
+sudo nsupdate -k /etc/bind/ddns.key
+```
+
+Type:
+
+```text
+server 127.0.0.1
+zone slimme-rik.sasm.uclllabs.be
+update add exam.slimme-rik.sasm.uclllabs.be. 3600 IN NS ns.slimme-rik.sasm.uclllabs.be.
+send
+quit
+```
+
+Check the delegation:
+
+```bash
+dig +short -t NS exam.slimme-rik.sasm.uclllabs.be @localhost
+```
+
+Expected result:
+
+```text
+ns.slimme-rik.sasm.uclllabs.be.
+```
+
+### Rules that prevent breaking BIND
+
+- Always run `named-checkconf` before reloading.
+- Always run `named-checkzone` on the zone file before reloading.
+- Static zone files can live in `/etc/bind/zones`.
+- Dynamic zone files should live in `/var/lib/bind/zones`.
+- Static zones do not need `allow-update`.
+- Dynamic zones need `allow-update { key ddnskey; };`.
+- Do not manually edit a dynamic zone while BIND is running and has a `.jnl`
+  journal for it. Use `nsupdate` instead.
+- If you must manually edit a dynamic zone, freeze it first, edit it, check it,
+  then thaw it:
+
+  ```bash
+  sudo rndc freeze exam.slimme-rik.sasm.uclllabs.be
+  sudo nano /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+  sudo named-checkzone exam.slimme-rik.sasm.uclllabs.be /var/lib/bind/zones/db.exam.slimme-rik.sasm.uclllabs.be
+  sudo rndc thaw exam.slimme-rik.sasm.uclllabs.be
+  ```
