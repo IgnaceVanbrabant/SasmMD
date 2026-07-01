@@ -19,11 +19,10 @@ By the end, you should be able to:
 - Disable directory listing.
 - Automate temporary vhost creation with `http_add_vhost`.
 - Automatically clean up scripted vhosts older than 4 hours.
-- Keep a clear git revision trail with descriptive commits.
 
 > Important: this guide uses Apache on Ubuntu/Debian. Replace
-> `ignace-vanbrabant` with your own machine name if your lab machine has a different
-> name.
+> `ignace-vanbrabant` with your own machine name if your lab machine has a
+> different name.
 
 ## 1. HTTP theory you need to know
 
@@ -77,63 +76,7 @@ No Host header, HTTP/1.0 request       -> default vhost
 The first enabled Apache vhost for an IP and port is the fallback vhost. That is
 why the default vhost must be configured carefully.
 
-## 2. Start from a clean git step
-
-Check your current state:
-
-```bash
-git status
-```
-
-What this does:
-
-- Shows which branch you are on.
-- Shows uncommitted files.
-
-Expected result on a clean repository:
-
-```text
-On branch main
-nothing to commit, working tree clean
-```
-
-Create a lab branch:
-
-```bash
-git checkout -b http-lab
-```
-
-What this does:
-
-- Creates a new branch named `http-lab`.
-- Moves your working directory to that branch.
-
-Expected result:
-
-```text
-Switched to a new branch 'http-lab'
-```
-
-Commit after every logical step. Example:
-
-```bash
-git add .
-git commit -m "Install Apache for HTTP lab"
-```
-
-What this does:
-
-- `git add .` stages your changes.
-- `git commit ...` records the staged changes in git.
-
-Expected result:
-
-```text
-[http-lab abc1234] Install Apache for HTTP lab
- 2 files changed, 20 insertions(+)
-```
-
-## 3. Install the required packages
+## 2. Install the required packages
 
 Update package metadata:
 
@@ -210,14 +153,8 @@ Expected result:
 Active: active (running)
 ```
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Install Apache and HTTP lab tools"
-```
-
-## 4. Check that DNS points to your server
+## 3. Check that DNS points to your server
 
 Check the main names:
 
@@ -242,7 +179,7 @@ YOUR_SERVER_IP
 If a hostname gives no output, fix the DNS lab first. The HTTP lab depends on
 working DNS.
 
-## 5. Create the required document roots
+## 4. Create the required document roots
 
 Create directories:
 
@@ -362,14 +299,8 @@ Expected result:
 
 No output means the permissions were applied.
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Create HTTP lab document roots"
-```
-
-## 6. Configure basic authentication for `www1/private`
+## 5. Configure basic authentication for `www1/private`
 
 Create the password file:
 
@@ -432,14 +363,8 @@ Expected result:
 
 No output means the file was written successfully.
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Configure basic authentication for www1 private pages"
-```
-
-## 7. Configure Apache virtual hosts
+## 6. Configure Apache virtual hosts
 
 Disable the packaged default vhost:
 
@@ -615,14 +540,8 @@ Expected result:
 
 No output means the reload succeeded.
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Configure required Apache virtual hosts"
-```
-
-## 8. Verify the required webpages
+## 7. Verify the required webpages
 
 ### Default page
 
@@ -781,14 +700,8 @@ Expected result:
 HTTP/1.1 403 Forbidden
 ```
 
-Commit verification notes if you keep them in your repo:
 
-```bash
-git add .
-git commit -m "Verify required HTTP vhost behavior"
-```
-
-## 9. Inspect HTTP traffic with tshark
+## 8. Inspect HTTP traffic with tshark
 
 Open one terminal and start a short capture:
 
@@ -829,14 +742,8 @@ Expected `tshark` line:
 
 Stop `tshark` with `Ctrl+C`.
 
-Commit this step if you save screenshots or notes:
 
-```bash
-git add .
-git commit -m "Document HTTP packet capture results"
-```
-
-## 10. Prepare `/etc/scripts` and sudo access
+## 9. Prepare `/etc/scripts` and sudo access
 
 Create the script directory:
 
@@ -894,43 +801,7 @@ Expected result:
 /etc/sudoers.d/sasm-http-check: parsed OK
 ```
 
-Commit this step:
-
-```bash
-git add .
-git commit -m "Allow check user to run HTTP vhost script"
-```
-
-## 11. Add `.gitignore` entries for scripted vhosts
-
-If your lab tracks `/etc` or generated Apache config in git, ignore the
-automatically generated files:
-
-```bash
-cat >> .gitignore <<'EOF'
-auto-http-*.conf
-auto-http-*.log
-EOF
-```
-
-What this does:
-
-- Prevents temporary vhost config and log names from polluting your repository.
-- Keeps manually written lab config visible in git.
-
-Expected result:
-
-```text
-```
-
-Commit this step:
-
-```bash
-git add .gitignore
-git commit -m "Ignore automatically generated HTTP vhost files"
-```
-
-## 12. Create `http_add_vhost`
+## 10. Create `http_add_vhost`
 
 Create the script:
 
@@ -1084,14 +955,8 @@ Expected result:
 
 No output means the syntax is valid.
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Add automated HTTP vhost creation script"
-```
-
-## 13. Verify `http_add_vhost`
+## 11. Verify `http_add_vhost`
 
 First make sure the test name exists in DNS. Replace `subdomain` with a
 subdomain that your DNS script created:
@@ -1171,14 +1036,8 @@ Leave the `check` shell:
 exit
 ```
 
-Commit this step if you saved test notes:
 
-```bash
-git add .
-git commit -m "Verify automated HTTP vhost creation"
-```
-
-## 14. Add automatic cleanup
+## 12. Add automatic cleanup
 
 The script above already calls `cleanup_old_vhosts` each time it runs. Add a
 cron job too, so cleanup happens even if Yoda stops calling the script.
@@ -1262,14 +1121,8 @@ Expected result:
 ```text
 ```
 
-Commit this step:
 
-```bash
-git add .
-git commit -m "Automate cleanup of old HTTP vhosts"
-```
-
-## 15. Final verification checklist
+## 13. Final verification checklist
 
 Run these commands before marking the lab done.
 
@@ -1374,7 +1227,7 @@ Expected result:
 removed
 ```
 
-## 16. Troubleshooting
+## 14. Troubleshooting
 
 ### Apache reload fails
 
